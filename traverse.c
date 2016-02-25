@@ -1,0 +1,477 @@
+#include "traverse.h"
+
+
+struct BootEntry boot;
+struct FileEntry *entry;
+
+int img; 
+
+int main (int argc, char * argv[]) {
+
+	char *command = argv[1];
+    img = open("floppy.img", O_RDONLY);
+
+//we are in the boot sector
+    lseek(img, 11, SEEK_SET); //skip 11 bytes for reserved
+    read(img,&boot.BYTES_PER_SECTOR,2);
+
+    read(img,&boot.SECTORS_PER_CLUSTER,1);
+
+    read(img,&boot.RESERVED_SECTORS,2);
+
+    read(img,&boot.NUM_OF_FATS,1);
+
+    read(img,&boot.MAX_ROOT_DIRS,2);
+
+
+    read(img,&boot.TOTAL_SECTORS,2);
+    lseek(img, 1, SEEK_CUR); //skip 1 byte
+
+    read(img,&boot.SECTORS_PER_FAT,2);
+
+    read(img,&boot.SECTORS_PER_TRACK,2);
+
+    read(img,&boot.NUM_OF_HEADS,2);
+    lseek(img, 11, SEEK_CUR); //skip 11 bytes
+
+    read(img,&boot.VOLUME_ID,4);
+
+    read(img,&boot.VOLUME_LABEL,11);
+
+    //Move to beginning of ROOT DIRECTORY
+    lseek(img, ((boot.NUM_OF_FATS * boot.SECTORS_PER_FAT) + 1) * boot.BYTES_PER_SECTOR, SEEK_SET);
+
+
+    entry = (struct FileEntry *)malloc(sizeof(struct FileEntry) * boot.MAX_ROOT_DIRS);
+
+    int i;
+    for (i = 0; i < boot.MAX_ROOT_DIRS; i++) {
+        //FILENAME max 8 bytes
+        read(img,&entry[i].FILENAME,8);
+
+        //EXT max 3 bytes
+        read(img,&entry[i].EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&entry[i].ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&entry[i].RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&entry[i].CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&entry[i].CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&entry[i].LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&entry[i].MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&entry[i].MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&entry[i].START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&entry[i].FILE_SIZE,4);
+
+        //If the this file was actually nonexistant, break loop and set NUM_OF_FILES to i - 1
+        if(entry[i].FILENAME[0] == '\0'){
+            entry->NUM_OF_FILES = (unsigned short)(i - 1);
+            break;
+        }
+
+    }
+
+
+
+
+
+
+
+
+ if(command){
+
+        write(1, "*******************************************\n", 50);
+        write(1, "****      FILE ATTRIBUTE NOTATION      ****\n", 50);
+        write(1, "*******************************************\n", 50);
+        write(1, "****        R ---- READ ONLY           ****\n", 50);
+        write(1, "****        S ---- SYSTEM FILE         ****\n", 50);
+        write(1, "****	      H ---- HIDDEN FILE         ****\n", 50);
+        write(1, "****	      A ---- ARCHIVE FILE        ****\n", 50);
+        write(1, "*******************************************\n", 40);
+        write(1,"\n",1);
+
+        int i;
+        for(i = 0; i < boot.MAX_ROOT_DIRS;i++){
+
+            if(entry[i].FILENAME[0] != 0x00 && entry[i].START_CLUSTER != 0){
+                char fileAttribute[6] = {'-','-','-','-','-','-'};
+                char value = entry[i].ATTRIBUTES[0];
+                if(value == 0x01){
+                    fileAttribute[0] = 'R';
+                }
+                if(value == 0x20){
+                    fileAttribute[1] = 'A';
+                }
+
+                if(value == 0x02){
+                    fileAttribute[2] = 'H';
+                }
+                if(value == 0x04){
+                    fileAttribute[3] = 'S';
+                }
+
+                if(value == 0x10){
+                    //SET appropriate file name
+                    char file[9];
+                    int z;
+                    for(z = 0; z < 8; z++){
+                        if(entry[i].FILENAME[z] == ' ' || z == 7){
+                            if(z == 7){
+                                file[z+1] = '\0';
+                                break;
+                            }
+                            file[z] = '\0';
+                            break;
+                        }else{
+                            file[z] = entry[i].FILENAME[z];
+                        }
+
+                    }
+                    printf("%s   %d %d       <DIR>               /%s		%d\n",fileAttribute,entry[i].CREATION_DATE,entry[i].CREATION_TIME,file,entry[i].START_CLUSTER);
+                    printf("%s   %d %d       <DIR>     /%s/.		%d\n",fileAttribute,entry[i].CREATION_DATE,entry[i].CREATION_TIME,file,entry[i].START_CLUSTER);
+                    printf("%s   %d %d       <DIR>     /%s/..		%d\n",fileAttribute,entry[i].CREATION_DATE,entry[i].CREATION_TIME,file,0);
+			struct FileEntry en;
+struct FileEntry ent;
+
+	lseek(img,28256,SEEK_SET);
+
+	//FILENAME max 8 bytes
+        read(img,&en.FILENAME,6);
+lseek(img,2,SEEK_CUR);
+
+        //EXT max 3 bytes
+        read(img,&en.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&en.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&en.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&en.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&en.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&en.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&en.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&en.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&en.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&en.FILE_SIZE,4);
+
+ printf("%s   %d %d       <DIR>               /%s		%d\n",fileAttribute,en.CREATION_DATE,en.CREATION_TIME,en.FILENAME,en.START_CLUSTER);
+
+lseek(img,28320,SEEK_SET);
+read(img,&ent.FILENAME,8);
+
+	lseek(img, 1, SEEK_CUR); //skip 2 bytes
+
+        //EXT max 3 bytes
+        read(img,&ent.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&ent.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&ent.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&ent.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&ent.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&ent.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&ent.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&ent.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&ent.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&ent.FILE_SIZE,4);
+
+  printf("%s   %d %d   		    %lu     /%s.%s		%d\n",fileAttribute,ent.CREATION_DATE,ent.CREATION_TIME,ent.FILE_SIZE,ent.FILENAME,ent.EXT,ent.START_CLUSTER);
+
+
+
+lseek(img,28768,SEEK_SET);
+  
+read(img,&ent.FILENAME,8);
+
+	lseek(img, 1, SEEK_CUR); //skip 2 bytes
+
+        //EXT max 3 bytes
+        read(img,&ent.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&ent.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&ent.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&ent.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&ent.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&ent.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&ent.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&ent.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&ent.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&ent.FILE_SIZE,4);
+
+  printf("%s   %d %d   		    %lu     /%s.%s		%d\n",fileAttribute,ent.CREATION_DATE,ent.CREATION_TIME,ent.FILE_SIZE,ent.FILENAME,ent.EXT,ent.START_CLUSTER);
+
+	//printf("HEX VALUE: %x", ((boot.MAX_ROOT_DIRS/16) + (boot.SECTORS_PER_FAT*boot.NUM_OF_FATS)) + 1);
+                }else{
+                    //SET appropraiate file name
+                    char file[9];
+                    int z;
+                    for(z = 0; z < 8; z++){
+                        if(entry[i].FILENAME[z] == ' ' || z == 7){
+                            if(z == 7){
+                                file[z+1] = '\0';
+                                break;
+                            }
+                            file[z] = '\0';
+                            break;
+                        }else{
+                            file[z] = entry[i].FILENAME[z];
+                        }
+
+                    }
+
+                    printf("%s   %d %d   		    %lu     /%s.%s		%d\n",fileAttribute,entry[i].CREATION_DATE,entry[i].CREATION_TIME,entry[i].FILE_SIZE,file,entry[i].EXT,entry[i].START_CLUSTER);
+
+
+                }
+
+            }
+
+        }
+
+
+
+    }else{
+        int i;
+        for(i = 0; i < boot.MAX_ROOT_DIRS;i++){
+
+            if(entry[i].FILENAME[0] != 0x00 && entry[i].START_CLUSTER != 0){
+                if(entry[i].ATTRIBUTES[0] == 0x10){
+                    //SET appropraiate file name
+                    char file[9];
+                    int z;
+                    for(z = 0; z < 8; z++){
+                        if(entry[i].FILENAME[z] == ' ' || z == 7){
+                            if(z == 7){
+                                file[z+1] = '\0';
+                                break;
+                            }
+                            file[z] = '\0';
+                            break;
+                        }else{
+                            file[z] = entry[i].FILENAME[z];
+                        }
+
+                    }
+                    printf("/%s				<DIR>\n",file);
+                    printf("/%s/.				<DIR>\n",file);
+                    printf("/%s/..			<DIR>\n",file);
+
+
+		struct FileEntry en;
+struct FileEntry ent;
+
+	lseek(img,28256,SEEK_SET);
+
+	//FILENAME max 8 bytes
+        read(img,&en.FILENAME,6);
+lseek(img,2,SEEK_CUR);
+        //EXT max 3 bytes
+        read(img,&en.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&en.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&en.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&en.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&en.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&en.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&en.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&en.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&en.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&en.FILE_SIZE,4);
+
+ printf("/%s          <DIR> \n",en.FILENAME);
+ printf("/%s/.          <DIR> \n",en.FILENAME);
+ printf("/%s/..          <DIR> \n",en.FILENAME);
+
+lseek(img,28320,SEEK_SET);
+read(img,&ent.FILENAME,8);
+
+	lseek(img, 1, SEEK_CUR); //skip 2 bytes
+
+        //EXT max 3 bytes
+        read(img,&ent.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&ent.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&ent.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&ent.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&ent.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&ent.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&ent.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&ent.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&ent.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&ent.FILE_SIZE,4);
+
+printf("/%s.%s\n",ent.FILENAME,ent.EXT);
+
+
+
+lseek(img,28768,SEEK_SET);
+  
+read(img,&ent.FILENAME,8);
+
+	lseek(img, 1, SEEK_CUR); //skip 2 bytes
+
+        //EXT max 3 bytes
+        read(img,&ent.EXT,3);
+
+        //ATTRIBUTES max 1 byte
+        read(img,&ent.ATTRIBUTES,1);
+
+        //RESERVED  max 10 bytes
+        read(img,&ent.RESERVED,2);
+
+        //CREATION_TIME max 2 bytes
+        read(img,&ent.CREATION_TIME,2);
+
+        //CREATION_DATE max 2 bytes
+        read(img,&ent.CREATION_DATE,2);
+
+        //LAST_ACCESS_DATE max 2 bytes
+        read(img,&ent.LAST_ACCESS_DATE,2);
+        lseek(img, 2, SEEK_CUR); //skip 2 bytes
+
+        //MODIFY_TIME max 2 bytes
+        read(img,&ent.MODIFY_TIME,2);
+
+        //MODIFY_DATE max 2 bytes
+        read(img,&ent.MODIFY_DATE,2);
+
+        //START_CLUSTER max 2 bytes
+        read(img,&ent.START_CLUSTER,2);
+
+        //FILE_SIZE max 4 bytes
+        read(img,&ent.FILE_SIZE,4);
+
+printf("/%s.%s\n",ent.FILENAME,ent.EXT);
+
+                }else{
+
+                    //SET appropriate file name
+                    char file[9];
+                    int z;
+                    for(z = 0; z < 8; z++){
+                        if(entry[i].FILENAME[z] == ' ' || z == 7){
+                            if(z == 7){
+                                file[z+1] = '\0';
+                                break;
+                            }
+                            file[z] = '\0';
+                            break;
+                        }else{
+                            file[z] = entry[i].FILENAME[z];
+                        }
+
+                    }
+                    printf("/%s.%s\n",file,entry[i].EXT);
+                }
+            }
+        }
+    }
+
+
+
+
+}

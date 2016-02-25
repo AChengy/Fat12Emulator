@@ -1,0 +1,208 @@
+Group_B Project 4 ReadMe
+--------------------------------------Description-----------------------------------------------------
+This is a shell progam that emulates a floppy disk. It has built in commands that will print certain
+aspects of the floppy drive. This includes Showsector, showfile (shows all the fat table entries of 
+a file based on a name), showsector which prints out the sector inputed, showfat which shows the first
+256 entries of the fat table, structure which prints the structure of the flop drive, and help which
+prints out all the commands. These all run as individual executable files.
+
+The shell also has built in commands. cd which will of course change the directory. It uses chdir so 
+it has some limitations. The shell also has a path command. This will work similarly to the environment
+path. It allows a user to input as many different paths to check and execute programs that are there.
+It also uses the system all cwd() to ge the current working directory.
+
+This shell also supports inifinite piping, redirections (not standard error if you try to redirect
+standard error it will break the redirection commands), and the combination of redirections and pipes.
+It does this through the use of exec system calls and forks. 
+
+I removed the two pipe limitation so it works infinitely.
+
+****all the floppy values are hardcoded in so it currently works with the included floppy.img***
+
+-----------------------------------Group Contributions------------------------------------------------
+AChengy
+
+----------------------------------Compiling Instructions----------------------------------------------
+Use the command make. This will compile the program. from there it is ./flop to run.
+
+----------------------------------------Known Bugs----------------------------------------------------
+Only known error is if you try to redirect standard error, but that is highly unlikely to ever happen.
+
+--------------------------------------Example Output--------------------------------------------------
+
+~~~~~~~~~~~Path examples~~~~~~~~~~~~
+flop:path  
+flop: no path selected use path + to add to the path
+
+flop:path + /usr/bin
+flop:path
+/usr/bin
+
+flop:path - /usr/bin
+flop:path
+flop: no path selected use path + to add to the path
+
+~~~~~~~~~~~two pipes~~~~~~~~~~~~~~~~~~~~~~
+flop:ls | tr e f | grep h
+flop.h
+flop.h~
+hflp
+hflp.c
+hflp.h
+Photo on 12-1-15 at 5.49 PM.jpg
+showfat
+showfat.c
+showfat.c~
+showfat.h
+showsfctor
+showsfctor.c
+showsfctor.h
+structurf.h
+travfrsf.h
+
+~~~~~~~~~~~~~~~redirection~~~~~~~~~~~~~~~~
+out:
+flop:help > test1.txt
+flop:cat test1.txt
+List of Commands:
+path       - can use + or - flags to alter the usable paths for executing
+cd         - changes the current directory. Full path names or .. must be used
+cwd        - shows the current working directory
+traverse   - shows the files stored in the floppy use -l flag for file info
+showsector - takes an int argument and prints the hex values of the corresponding sector
+showfat    - shows first 256 entries in the fat table
+structure  - shows the structure of the floppy
+showfile   - Takes a file name as an argument and shows the file in hex
+help       - shows list of commands
+quit       - quits flop
+exit       - exits flop
+flop:
+
+
+In and out:
+
+flop:grep help < test1.txt > test2.txt
+flop:cat test2.txt
+help       - shows list of commands
+flop:
+
+
+~~~~~~~~~~~~mix of redirection and pipes~~~
+
+flop:tr e f < test1.txt | grep hf > test3.txt
+flop:cat test3.txt
+path       - can usf + or - flags to altfr thf usablf paths for fxfcuting
+cd         - changfs thf currfnt dirfctory. Full path namfs or .. must bf usfd
+cwd        - shows thf currfnt working dirfctory
+travfrsf   - shows thf filfs storfd in thf floppy usf -l flag for filf info
+showsfctor - takfs an int argumfnt and prints thf hfx valufs of thf corrfsponding sfctor
+showfat    - shows first 256 fntrifs in thf fat tablf
+structurf  - shows thf structurf of thf floppy
+showfilf   - Takfs a filf namf as an argumfnt and shows thf filf in hfx
+hflp       - shows list of commands
+flop:
+
+
+-------------------project three broken functions now working---------------------------------------------------------------------------
+
+Showfat:
+
+flop:showfat
+        0       1       2       3       4       5       6       7       8       9       A       B       C       D       E       F
+0                       FREE    4       FFF     6       FFF     FFF     9       FFF     FFF     C       FFF     FFF     FFF     10
+10      11      FFF     FFF     FFF     15      FFF     17      FFF     FFF     FFF     FFF     FFF     1D      FFF     1F      20
+20      FFF     FFF     FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+30      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+40      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+50      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+60      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+70      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+80      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+90      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+A0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+B0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+C0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+D0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+E0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+F0      FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE    FREE
+100
+flop:
+
+showsector:
+
+flop:showsector 10
+        0       1       2       3       4       5       6       7       8       9       a       b       c       d       e       f
+
+0       F0      FF      FF      0       40      0       FF      6F      0       FF      FF      FF      9       F0      FF      FF
+10      CF      0       FF      FF      FF      FF      F       1       11      F0      FF      FF      FF      FF      15      F0
+20      FF      17      F0      FF      FF      FF      FF      FF      FF      FF      1D      F0      FF      1F      0       2
+30      FF      FF      FF      0       0       0       0       0       0       0       0       0       0       0       0       0
+40      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+50      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+60      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+70      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+80      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+90      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+A0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+B0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+C0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+D0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+E0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+F0      0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+100     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+110     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+120     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+130     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+140     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+150     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+160     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+170     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+180     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+190     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1A0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1B0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1C0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1D0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1E0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1F0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+flop:
+
+showfile:
+
+flop:showfile /ALOOP1.JAV
+'ALOOP1.JAV '
+5
+        0       1       2       3       4       5       6       7       8       9       a       b       c       d       e       f
+0       70      75      62      6C      69      63      20      63      6C      61      73      73      20      41      6C      6F
+10      6F      70      31      20      7B      A       20      20      20      20      70      75      62      6C      69      63
+20      20      73      74      61      74      69      63      20      76      6F      69      64      20      6D      61      69
+30      6E      28      53      74      72      69      6E      67      5B      5D      20      61      72      67      73      29
+40      20      7B      A       9       A       9       53      74      72      69      6E      67      5B      5D      20      72
+50      61      6E      6B      20      3D      20      7B      22      44      45      55      43      45      22      2C      20
+60      22      54      48      52      45      45      22      2C      20      22      46      4F      55      52      22      2C
+70      20      22      46      49      56      45      22      2C      20      22      53      49      58      22      2C      20
+80      22      53      45      56      45      4E      22      2C      A       9       9       9       20      22      45      49
+90      47      48      54      22      2C      20      22      4E      49      4E      45      22      2C      20      22      54
+A0      45      4E      22      2C      20      22      4A      41      43      4B      22      2C      20      22      51      55
+B0      45      45      4E      22      2C      20      22      4B      49      4E      47      22      2C      20      22      41
+C0      43      45      22      7D      3B      A       9       A       9       69      6E      74      20      69      20      3D
+D0      20      30      3B      A       9       69      6E      74      20      63      6F      75      6E      74      65      72
+E0      20      3D      20      30      3B      A       9       77      68      69      6C      65      20      28      21      72
+F0      61      6E      6B      5B      69      5D      2E      65      71      75      61      6C      73      28      22      53
+100     49      58      22      29      29      20      7B      A       9       20      20      20      20      69      2B      2B
+110     3B      A       9       20      20      20      20      63      6F      75      6E      74      65      72      2B      2B
+120     3B      A       9       7D      A       9       53      79      73      74      65      6D      2E      6F      75      74
+130     2E      70      72      69      6E      74      6C      6E      28      63      6F      75      6E      74      65      72
+140     29      3B      A       A       20      20      20      20      7D      A       7D      A       A       0       0       0
+150     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+160     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+170     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+180     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+190     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1A0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1B0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1C0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1D0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1E0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+1F0     0       0       0       0       0       0       0       0       0       0       0       0       0       0       0       0
+flop:
